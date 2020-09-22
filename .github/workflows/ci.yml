@@ -7,8 +7,6 @@ on:
       - release/**
       - gh-actions
 
-  pull_request:
-
 jobs:
   lint:
     name: Lint
