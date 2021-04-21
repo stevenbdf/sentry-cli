@@ -14,7 +14,7 @@ use crate::utils::args::{get_timestamp, validate_timestamp};
 use crate::utils::event::{attach_logfile, get_sdk_info, with_sentry_client};
 use crate::utils::releases::detect_release_name;
 
-pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
+pub fn make_app(app: App) -> App {
     app.about("Send a manual event to Sentry.")
         .long_about(
             "Send a manual event to Sentry.{n}{n}\
@@ -24,118 +24,118 @@ pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
              debug or setting `SENTRY_LOG_LEVEL=debug`.",
         )
         .arg(
-            Arg::with_name("level")
+            Arg::new("level")
                 .value_name("LEVEL")
                 .long("level")
-                .short("l")
-                .help("Optional event severity/log level. (debug|info|warning|error|fatal) [defaults to 'error']"),
+                .short('l')
+                .about("Optional event severity/log level. (debug|info|warning|error|fatal) [defaults to 'error']"),
         )
-        .arg(Arg::with_name("timestamp")
+        .arg(Arg::new("timestamp")
                  .long("timestamp")
                  .validator(validate_timestamp)
                  .value_name("TIMESTAMP")
-                 .help("Optional event timestamp in one of supported formats: unix timestamp, RFC2822 or RFC3339."))
+                 .about("Optional event timestamp in one of supported formats: unix timestamp, RFC2822 or RFC3339."))
         .arg(
-            Arg::with_name("release")
+            Arg::new("release")
                 .value_name("RELEASE")
                 .long("release")
-                .short("r")
-                .help("Optional identifier of the release."),
+                .short('r')
+                .about("Optional identifier of the release."),
         )
         .arg(
-            Arg::with_name("dist")
+            Arg::new("dist")
                 .value_name("DISTRIBUTION")
                 .long("dist")
-                .short("d")
-                .help("Set the distribution."),
+                .short('d')
+                .about("Set the distribution."),
         )
         .arg(
-            Arg::with_name("environment")
+            Arg::new("environment")
                 .value_name("ENVIRONMENT")
                 .long("env")
-                .short("E")
-                .help("Send with a specific environment."),
+                .short('E')
+                .about("Send with a specific environment."),
         )
         .arg(
-            Arg::with_name("no_environ")
+            Arg::new("no_environ")
                 .long("no-environ")
-                .help("Do not send environment variables along"),
+                .about("Do not send environment variables along"),
         )
         .arg(
-            Arg::with_name("message")
+            Arg::new("message")
                 .value_name("MESSAGE")
                 .long("message")
-                .short("m")
+                .short('m')
                 .multiple(true)
                 .number_of_values(1)
-                .help("The event message."),
+                .about("The event message."),
         )
         .arg(
-            Arg::with_name("message_args")
+            Arg::new("message_args")
                 .value_name("MESSAGE_ARG")
                 .long("message-arg")
-                .short("a")
+                .short('a')
                 .multiple(true)
                 .number_of_values(1)
-                .help("Arguments for the event message."),
+                .about("Arguments for the event message."),
         )
         .arg(
-            Arg::with_name("platform")
+            Arg::new("platform")
                 .value_name("PLATFORM")
                 .long("platform")
-                .short("p")
-                .help("Override the default 'other' platform specifier."),
+                .short('p')
+                .about("Override the default 'other' platform specifier."),
         )
         .arg(
-            Arg::with_name("tags")
+            Arg::new("tags")
                 .value_name("KEY:VALUE")
                 .long("tag")
-                .short("t")
+                .short('t')
                 .multiple(true)
                 .number_of_values(1)
-                .help("Add a tag (key:value) to the event."),
+                .about("Add a tag (key:value) to the event."),
         )
         .arg(
-            Arg::with_name("extra")
+            Arg::new("extra")
                 .value_name("KEY:VALUE")
                 .long("extra")
-                .short("e")
+                .short('e')
                 .multiple(true)
                 .number_of_values(1)
-                .help("Add extra information (key:value) to the event."),
+                .about("Add extra information (key:value) to the event."),
         )
         .arg(
-            Arg::with_name("user_data")
+            Arg::new("user_data")
                 .value_name("KEY:VALUE")
                 .long("user")
-                .short("u")
+                .short('u')
                 .multiple(true)
                 .number_of_values(1)
-                .help(
+                .about(
                     "Add user information (key:value) to the event. \
                      [eg: id:42, username:foo]",
                 ),
         )
         .arg(
-            Arg::with_name("fingerprint")
+            Arg::new("fingerprint")
                 .value_name("FINGERPRINT")
                 .long("fingerprint")
-                .short("f")
+                .short('f')
                 .multiple(true)
                 .number_of_values(1)
-                .help("Change the fingerprint of the event."),
+                .about("Change the fingerprint of the event."),
         )
         .arg(
-            Arg::with_name("logfile")
+            Arg::new("logfile")
                 .value_name("PATH")
                 .long("logfile")
-                .help("Send a logfile as breadcrumbs with the event (last 100 records)"),
+                .about("Send a logfile as breadcrumbs with the event (last 100 records)"),
         )
         .arg(
-            Arg::with_name("with_categories")
+            Arg::new("with_categories")
                 .long("with-categories")
-                .help("Parses off a leading category for breadcrumbs from the logfile")
-                .long_help(
+                .about("Parses off a leading category for breadcrumbs from the logfile")
+                .long_about(
                     "When logfile is provided, this flag will try to assign correct level \
                     to extracted log breadcrumbs. It uses standard log format of \"category: message\". \
                     eg. \"INFO: Something broke\" will be parsed as a breadcrumb \
@@ -143,7 +143,7 @@ pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
         )
 }
 
-pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
+pub fn execute(matches: &ArgMatches) -> Result<(), Error> {
     let config = Config::current();
 
     let mut event = Event {

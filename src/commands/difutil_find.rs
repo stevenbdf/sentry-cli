@@ -31,12 +31,12 @@ struct DifMatch {
     pub path: PathBuf,
 }
 
-pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
+pub fn make_app(app: App) -> App {
     app.about("Locate debug information files for given debug identifiers.")
         .arg(
-            Arg::with_name("types")
+            Arg::new("types")
                 .long("type")
-                .short("t")
+                .short('t')
                 .value_name("TYPE")
                 .multiple(true)
                 .number_of_values(1)
@@ -49,39 +49,39 @@ pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
                     "breakpad",
                     "sourcebundle",
                 ])
-                .help(
+                .about(
                     "Only consider debug information files of the given \
                      type.  By default all types are considered.",
                 ),
         )
         .arg(
-            Arg::with_name("no_well_known")
+            Arg::new("no_well_known")
                 .long("no-well-known")
-                .help("Do not look for debug symbols in well known locations."),
+                .about("Do not look for debug symbols in well known locations."),
         )
         .arg(
-            Arg::with_name("no_cwd")
+            Arg::new("no_cwd")
                 .long("no-cwd")
-                .help("Do not look for debug symbols in the current working directory."),
+                .about("Do not look for debug symbols in the current working directory."),
         )
         .arg(
-            Arg::with_name("paths")
+            Arg::new("paths")
                 .long("path")
-                .short("p")
+                .short('p')
                 .multiple(true)
                 .number_of_values(1)
-                .help("Add a path to search recursively for debug info files."),
+                .about("Add a path to search recursively for debug info files."),
         )
         .arg(
-            Arg::with_name("json")
+            Arg::new("json")
                 .long("json")
-                .help("Format outputs as JSON."),
+                .about("Format outputs as JSON."),
         )
         .arg(
-            Arg::with_name("ids")
+            Arg::new("ids")
                 .index(1)
                 .value_name("ID")
-                .help("The debug identifiers of the files to search for.")
+                .about("The debug identifiers of the files to search for.")
                 .validator(validate_id)
                 .multiple(true)
                 .number_of_values(1),
@@ -290,7 +290,7 @@ fn find_ids(
     Ok(remaining.is_empty())
 }
 
-pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
+pub fn execute(matches: &ArgMatches) -> Result<(), Error> {
     let mut paths = HashSet::new();
     let mut types = HashSet::new();
     let mut ids = HashSet::new();

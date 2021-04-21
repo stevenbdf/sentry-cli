@@ -23,42 +23,37 @@ lazy_static! {
     static ref FRAME_RE: Regex = Regex::new(r#"^(.*?):(.*):(\d+)$"#).unwrap();
 }
 
-pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
+pub fn make_app(app: App) -> App {
     app.about("Prints out a bash script that does error handling.")
         .arg(
-            Arg::with_name("no_exit")
+            Arg::new("no_exit")
                 .long("no-exit")
-                .help("Do not turn on -e (exit immediately) flag automatically"),
+                .about("Do not turn on -e (exit immediately) flag automatically"),
         )
         .arg(
-            Arg::with_name("no_environ")
+            Arg::new("no_environ")
                 .long("no-environ")
-                .help("Do not send environment variables along"),
+                .about("Do not send environment variables along"),
         )
         .arg(
-            Arg::with_name("cli")
+            Arg::new("cli")
                 .long("cli")
                 .value_name("CMD")
-                .help("Explicitly set/override the sentry-cli command"),
+                .about("Explicitly set/override the sentry-cli command"),
         )
         .arg(
-            Arg::with_name("send_event")
+            Arg::new("send_event")
                 .long("send-event")
                 .requires_all(&["traceback", "log"])
                 .hidden(true),
         )
         .arg(
-            Arg::with_name("traceback")
+            Arg::new("traceback")
                 .long("traceback")
                 .value_name("PATH")
                 .hidden(true),
         )
-        .arg(
-            Arg::with_name("log")
-                .long("log")
-                .value_name("PATH")
-                .hidden(true),
-        )
+        .arg(Arg::new("log").long("log").value_name("PATH").hidden(true))
 }
 
 fn send_event(traceback: &str, logfile: &str, environ: bool) -> Result<(), Error> {
@@ -172,7 +167,7 @@ fn send_event(traceback: &str, logfile: &str, environ: bool) -> Result<(), Error
     Ok(())
 }
 
-pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
+pub fn execute(matches: &ArgMatches) -> Result<(), Error> {
     if matches.is_present("send_event") {
         return send_event(
             matches.value_of("traceback").unwrap(),

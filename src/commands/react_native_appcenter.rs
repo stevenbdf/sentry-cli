@@ -16,20 +16,20 @@ use crate::utils::file_search::ReleaseFileSearch;
 use crate::utils::file_upload::UploadContext;
 use crate::utils::sourcemaps::SourceMapProcessor;
 
-pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
+pub fn make_app(app: App) -> App {
     app.about("Upload react-native projects for AppCenter.")
         .org_project_args()
         .arg(
-            Arg::with_name("deployment")
+            Arg::new("deployment")
                 .long("deployment")
                 .value_name("DEPLOYMENT")
-                .help("The name of the deployment. [Production, Staging]"),
+                .about("The name of the deployment. [Production, Staging]"),
         )
         .arg(
-            Arg::with_name("bundle_id")
+            Arg::new("bundle_id")
                 .value_name("BUNDLE_ID")
                 .long("bundle-id")
-                .help(
+                .about(
                     "Explicitly provide the bundle ID instead of \
                      parsing the source projects.  This allows you to push \
                      codepush releases for iOS on platforms without Xcode or \
@@ -38,61 +38,63 @@ pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
                 ),
         )
         .arg(
-            Arg::with_name("version_name")
+            Arg::new("version_name")
                 .value_name("VERSION_NAME")
                 .long("version-name")
-                .help("Override version name in release name"),
+                .about("Override version name in release name"),
         )
         .arg(
-            Arg::with_name("dist")
+            Arg::new("dist")
                 .long("dist")
                 .value_name("DISTRIBUTION")
                 .multiple(true)
                 .number_of_values(1)
-                .help("The names of the distributions to publish. Can be supplied multiple times."),
+                .about(
+                    "The names of the distributions to publish. Can be supplied multiple times.",
+                ),
         )
         .arg(
-            Arg::with_name("print_release_name")
+            Arg::new("print_release_name")
                 .long("print-release-name")
-                .help("Print the release name instead."),
+                .about("Print the release name instead."),
         )
         .arg(
-            Arg::with_name("release_name")
+            Arg::new("release_name")
                 .value_name("RELEASE_NAME")
                 .long("release-name")
                 .conflicts_with_all(&["bundle_id", "version_name"])
-                .help("Override the entire release-name"),
+                .about("Override the entire release-name"),
         )
         .arg(
-            Arg::with_name("app_name")
+            Arg::new("app_name")
                 .value_name("APP_NAME")
                 .index(1)
                 .required(true)
-                .help("The name of the AppCenter application."),
+                .about("The name of the AppCenter application."),
         )
         .arg(
-            Arg::with_name("platform")
+            Arg::new("platform")
                 .value_name("PLATFORM")
                 .index(2)
                 .required(true)
-                .help("The name of the app platform. [ios, android]"),
+                .about("The name of the app platform. [ios, android]"),
         )
         .arg(
-            Arg::with_name("paths")
+            Arg::new("paths")
                 .value_name("PATH")
                 .index(3)
                 .required(true)
                 .multiple(true)
-                .help("A list of folders with assets that should be processed."),
+                .about("A list of folders with assets that should be processed."),
         )
         .arg(
-            Arg::with_name("wait")
+            Arg::new("wait")
                 .long("wait")
-                .help("Wait for the server to fully process uploaded files."),
+                .about("Wait for the server to fully process uploaded files."),
         )
 }
 
-pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
+pub fn execute(matches: &ArgMatches) -> Result<(), Error> {
     let config = Config::current();
     let here = env::current_dir()?;
     let here_str: &str = &here.to_string_lossy();

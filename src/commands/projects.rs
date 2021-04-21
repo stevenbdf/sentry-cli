@@ -7,14 +7,14 @@ use crate::config::Config;
 use crate::utils::args::ArgExt;
 use crate::utils::formatting::Table;
 
-pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
+pub fn make_app(app: App) -> App {
     app.about("Manage projects on Sentry.")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .org_arg()
         .subcommand(App::new("list").about("List all projects for an organization."))
 }
 
-pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
+pub fn execute(matches: &ArgMatches) -> Result<(), Error> {
     let config = Config::current();
     let api = Api::current();
     let org = config.get_org(matches)?;

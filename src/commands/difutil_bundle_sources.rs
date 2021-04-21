@@ -9,21 +9,21 @@ use symbolic::debuginfo::sourcebundle::SourceBundleWriter;
 use crate::utils::dif::DifFile;
 use crate::utils::dif_upload::filter_bad_sources;
 
-pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
+pub fn make_app(app: App) -> App {
     app.about("Create a source bundle for a given debug information file")
         .arg(
-            Arg::with_name("paths")
+            Arg::new("paths")
                 .index(1)
                 .required(true)
                 .multiple(true)
-                .help("The path to the input debug info files."),
+                .about("The path to the input debug info files."),
         )
         .arg(
-            Arg::with_name("output")
-                .short("o")
+            Arg::new("output")
+                .short('o')
                 .long("output")
                 .value_name("PATH")
-                .help(
+                .about(
                     "The path to the output folder.  If not provided the \
                      file is placed next to the input file.",
                 ),
@@ -66,7 +66,7 @@ fn get_canonical_path<P: AsRef<Path>>(path: P) -> Result<PathBuf, Error> {
     Ok(canonical_path)
 }
 
-pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
+pub fn execute(matches: &ArgMatches) -> Result<(), Error> {
     let output_path = matches.value_of("output").map(Path::new);
 
     for orig_path in matches.values_of("paths").unwrap() {

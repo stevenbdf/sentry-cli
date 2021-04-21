@@ -12,7 +12,7 @@ macro_rules! each_subcommand {
     };
 }
 
-pub fn make_app<'a, 'b: 'a>(mut app: App<'a, 'b>) -> App<'a, 'b> {
+pub fn make_app(mut app: App) -> App {
     macro_rules! add_subcommand {
         ($name:ident) => {{
             app = app.subcommand(commands::$name::make_app(App::new(
@@ -28,7 +28,7 @@ pub fn make_app<'a, 'b: 'a>(mut app: App<'a, 'b>) -> App<'a, 'b> {
     app
 }
 
-pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
+pub fn execute(matches: &ArgMatches) -> Result<(), Error> {
     macro_rules! execute_subcommand {
         ($name:ident) => {{
             if let Some(sub_matches) =

@@ -14,21 +14,19 @@ fn is_hidden() -> bool {
     cfg!(windows) || is_homebrew_install() || is_npm_install()
 }
 
-pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
-    app.about("Uninstall the sentry-cli executable.")
-        .arg(
-            Arg::with_name("confirm")
-                .long("confirm")
-                .help("Skip uninstall confirmation prompt."),
-        )
-        .settings(&if is_hidden() {
-            vec![AppSettings::Hidden]
-        } else {
-            vec![]
-        })
+pub fn make_app(mut app: App) -> App {
+    if is_hidden() {
+        app = app.setting(AppSettings::Hidden);
+    }
+
+    app.about("Uninstall the sentry-cli executable.").arg(
+        Arg::new("confirm")
+            .long("confirm")
+            .about("Skip uninstall confirmation prompt."),
+    )
 }
 
-pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
+pub fn execute(matches: &ArgMatches) -> Result<(), Error> {
     let exe = env::current_exe()?;
 
     if is_homebrew_install() {

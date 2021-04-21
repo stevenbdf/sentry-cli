@@ -7,47 +7,47 @@ use crate::api::{Api, IssueChanges, IssueFilter};
 use crate::config::Config;
 use crate::utils::args::ArgExt;
 
-pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
+pub fn make_app(app: App) -> App {
     app.about("Manage issues in Sentry.")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .org_project_args()
         .arg(
-            Arg::with_name("status")
+            Arg::new("status")
                 .long("status")
-                .short("s")
+                .short('s')
                 .value_name("STATUS")
                 .possible_values(&["resolved", "muted", "unresolved"])
-                .help("Select all issues matching a given status."),
+                .about("Select all issues matching a given status."),
         )
         .arg(
-            Arg::with_name("all")
+            Arg::new("all")
                 .long("all")
-                .short("a")
-                .help("Select all issues (this might be limited)."),
+                .short('a')
+                .about("Select all issues (this might be limited)."),
         )
         .arg(
-            Arg::with_name("id")
+            Arg::new("id")
                 .multiple(true)
                 .number_of_values(1)
-                .short("i")
+                .short('i')
                 .long("id")
-                .help("Select the issue with the given ID."),
+                .about("Select the issue with the given ID."),
         )
         .subcommand(
             App::new("resolve")
                 .about("Bulk resolve all selected issues.")
                 .arg(
-                    Arg::with_name("next_release")
+                    Arg::new("next_release")
                         .long("next-release")
-                        .short("n")
-                        .help("Only select issues in the next release."),
+                        .short('n')
+                        .about("Only select issues in the next release."),
                 ),
         )
         .subcommand(App::new("mute").about("Bulk mute all selected issues."))
         .subcommand(App::new("unresolve").about("Bulk unresolve all selected issues."))
 }
 
-fn get_filter_from_matches(matches: &ArgMatches<'_>) -> Result<IssueFilter, Error> {
+fn get_filter_from_matches(matches: &ArgMatches) -> Result<IssueFilter, Error> {
     if matches.is_present("all") {
         return Ok(IssueFilter::All);
     }
@@ -85,7 +85,7 @@ fn execute_change(
     Ok(())
 }
 
-pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
+pub fn execute(matches: &ArgMatches) -> Result<(), Error> {
     let config = Config::current();
     let (org, project) = config.get_org_and_project(matches)?;
     let filter = get_filter_from_matches(matches)?;

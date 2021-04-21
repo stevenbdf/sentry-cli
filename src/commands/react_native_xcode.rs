@@ -27,77 +27,70 @@ struct SourceMapReport {
     sourcemap_path: Option<PathBuf>,
 }
 
-pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
+pub fn make_app(app: App) -> App {
     app.about("Upload react-native projects in a Xcode build step.")
         .org_project_args()
         // legacy parameter
-        .arg(
-            Arg::with_name("verbose")
-                .long("verbose")
-                .short("v")
-                .hidden(true),
-        )
-        .arg(Arg::with_name("force").long("force").short("f").help(
+        .arg(Arg::new("verbose").long("verbose").short('v').hidden(true))
+        .arg(Arg::new("force").long("force").short('f').about(
             "Force the script to run, even in debug configuration.{n}This rarely \
              does what you want because the default build script does not actually \
              produce any information that the sentry build tool could pick up on.",
         ))
-        .arg(Arg::with_name("allow_fetch").long("allow-fetch").help(
+        .arg(Arg::new("allow_fetch").long("allow-fetch").about(
             "Enable sourcemap fetching from the packager.{n}If this is enabled \
              the react native packager needs to run and sourcemaps are downloade \
              from it if the simulator platform is detected.",
         ))
         .arg(
-            Arg::with_name("fetch_from")
+            Arg::new("fetch_from")
                 .long("fetch-from")
                 .value_name("URL")
-                .help(
+                .about(
                     "Set the URL to fetch sourcemaps from.{n}\
                      The default is http://127.0.0.1:8081/, where the react-native \
                      packager runs by default.",
                 ),
         )
-        .arg(
-            Arg::with_name("force_foreground")
-                .long("force-foreground")
-                .help(
-                    "Wait for the process to finish.{n}\
+        .arg(Arg::new("force_foreground").long("force-foreground").about(
+            "Wait for the process to finish.{n}\
                      By default part of the build process will when triggered from Xcode \
                      detach and continue in the background.  When an error happens, \
                      a dialog is shown.  If this parameter is passed, Xcode will wait \
                      for the process to finish before the build finishes and output \
                      will be shown in the Xcode build output.",
-                ),
-        )
+        ))
         .arg(
-            Arg::with_name("build_script")
+            Arg::new("build_script")
                 .value_name("BUILD_SCRIPT")
                 .index(1)
-                .help(
+                .about(
                     "Optional path to the build script.{n}\
                      This is the path to the `react-native-xcode.sh` script you want \
                      to use.  By default the bundled build script is used.",
                 ),
         )
         .arg(
-            Arg::with_name("dist")
+            Arg::new("dist")
                 .long("dist")
                 .value_name("DISTRIBUTION")
                 .multiple(true)
                 .number_of_values(1)
-                .help("The names of the distributions to publish. Can be supplied multiple times."),
+                .about(
+                    "The names of the distributions to publish. Can be supplied multiple times.",
+                ),
         )
         .arg(
-            Arg::with_name("args")
+            Arg::new("args")
                 .value_name("ARGS")
                 .multiple(true)
                 .last(true)
-                .help("Optional arguments to pass to the build script."),
+                .about("Optional arguments to pass to the build script."),
         )
         .arg(
-            Arg::with_name("wait")
+            Arg::new("wait")
                 .long("wait")
-                .help("Wait for the server to fully process uploaded files."),
+                .about("Wait for the server to fully process uploaded files."),
         )
 }
 
@@ -110,7 +103,7 @@ fn find_node() -> String {
     "node".into()
 }
 
-pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
+pub fn execute(matches: &ArgMatches) -> Result<(), Error> {
     let config = Config::current();
     let (org, project) = config.get_org_and_project(matches)?;
     let api = Api::current();

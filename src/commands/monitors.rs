@@ -24,7 +24,7 @@ impl<'a> MonitorContext {
     }
 }
 
-pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
+pub fn make_app(app: App) -> App {
     app.about("Manage monitors on Sentry.")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .setting(AppSettings::Hidden)
@@ -34,27 +34,22 @@ pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
             App::new("run")
                 .about("Wraps a command")
                 .arg(
-                    Arg::with_name("monitor")
-                        .help("The monitor ID")
+                    Arg::new("monitor")
+                        .about("The monitor ID")
                         .required(true)
                         .index(1),
                 )
                 .arg(
-                    Arg::with_name("allow_failure")
-                        .short("f")
+                    Arg::new("allow_failure")
+                        .short('f')
                         .long("allow-failure")
-                        .help("Run provided command even when Sentry reports an error."),
+                        .about("Run provided command even when Sentry reports an error."),
                 )
-                .arg(
-                    Arg::with_name("args")
-                        .required(true)
-                        .multiple(true)
-                        .last(true),
-                ),
+                .arg(Arg::new("args").required(true).multiple(true).last(true)),
         )
 }
 
-pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
+pub fn execute(matches: &ArgMatches) -> Result<(), Error> {
     let config = Config::current();
 
     let ctx = MonitorContext {
@@ -71,7 +66,7 @@ pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
     unreachable!();
 }
 
-fn execute_list<'a>(ctx: &MonitorContext, _matches: &ArgMatches<'a>) -> Result<(), Error> {
+fn execute_list(ctx: &MonitorContext, _matches: &ArgMatches) -> Result<(), Error> {
     let mut monitors = ctx.api.list_organization_monitors(ctx.get_org()?)?;
     monitors.sort_by_key(|p| (p.name.clone()));
 
@@ -91,7 +86,7 @@ fn execute_list<'a>(ctx: &MonitorContext, _matches: &ArgMatches<'a>) -> Result<(
     Ok(())
 }
 
-fn execute_run<'a>(ctx: &MonitorContext, matches: &ArgMatches<'a>) -> Result<(), Error> {
+fn execute_run(ctx: &MonitorContext, matches: &ArgMatches) -> Result<(), Error> {
     let monitor = matches
         .value_of("monitor")
         .unwrap()

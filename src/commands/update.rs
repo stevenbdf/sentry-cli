@@ -6,22 +6,20 @@ use failure::{bail, Error};
 
 use crate::utils::update::{assert_updatable, can_update_sentrycli, get_latest_sentrycli_release};
 
-pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
-    app.about("Update the sentry-cli executable.")
-        .settings(&if !can_update_sentrycli() {
-            vec![AppSettings::Hidden]
-        } else {
-            vec![]
-        })
-        .arg(
-            Arg::with_name("force")
-                .long("force")
-                .short("f")
-                .help("Force the update even if the latest version is already installed."),
-        )
+pub fn make_app(mut app: App) -> App {
+    if !can_update_sentrycli() {
+        app = app.setting(AppSettings::Hidden);
+    }
+
+    app.about("Update the sentry-cli executable.").arg(
+        Arg::new("force")
+            .long("force")
+            .short('f')
+            .about("Force the update even if the latest version is already installed."),
+    )
 }
 
-pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
+pub fn execute(matches: &ArgMatches) -> Result<(), Error> {
     // Disable update check in case of errors
     env::set_var("SENTRY_DISABLE_UPDATE_CHECK", "true");
 

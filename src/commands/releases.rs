@@ -51,7 +51,7 @@ impl<'a> ReleaseContext<'a> {
         }
     }
 
-    pub fn get_projects(&'a self, matches: &ArgMatches<'a>) -> Result<Vec<String>, Error> {
+    pub fn get_projects(&'a self, matches: &ArgMatches) -> Result<Vec<String>, Error> {
         if let Some(projects) = matches.values_of("projects") {
             Ok(projects.map(str::to_owned).collect())
         } else if let Some(project) = self.project_default {
@@ -63,67 +63,67 @@ impl<'a> ReleaseContext<'a> {
     }
 }
 
-pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
+pub fn make_app(app: App) -> App {
     app.about("Manage releases on Sentry.")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .org_arg()
-        .arg(Arg::with_name("project")
+        .arg(Arg::new("project")
             .hidden(true)
             .value_name("PROJECT")
             .long("project")
-            .short("p")
+            .short('p')
             .validator(validate_project))
         .subcommand(App::new("new")
             .about("Create a new release.")
             .version_arg(1)
             .projects_arg()
             // this is deprecated and no longer does anything
-            .arg(Arg::with_name("ref")
+            .arg(Arg::new("ref")
                 .long("ref")
                 .value_name("REF")
                 .hidden(true)
                 .hidden(true))
-            .arg(Arg::with_name("url")
+            .arg(Arg::new("url")
                 .long("url")
                 .value_name("URL")
-                .help("Optional URL to the release for information purposes."))
-            .arg(Arg::with_name("finalize")
+                .about("Optional URL to the release for information purposes."))
+            .arg(Arg::new("finalize")
                  .long("finalize")
-                 .help("Immediately finalize the release. (sets it to released)")))
+                 .about("Immediately finalize the release. (sets it to released)")))
         .subcommand(App::new("propose-version")
             .about("Propose a version name for a new release."))
         .subcommand(App::new("set-commits")
             .about("Set commits of a release.")
             .version_arg(1)
-            .arg(Arg::with_name("clear")
+            .arg(Arg::new("clear")
                  .long("clear")
-                 .help("Clear all current commits from the release."))
-            .arg(Arg::with_name("auto")
+                 .about("Clear all current commits from the release."))
+            .arg(Arg::new("auto")
                 .long("auto")
-                .help("Enable completely automated commit management.{n}\
+                .about("Enable completely automated commit management.{n}\
                         This requires that the command is run from within a git repository.  \
                         sentry-cli will then automatically find remotely configured \
                         repositories and discover commits."))
-            .arg(Arg::with_name("local")
+            .arg(Arg::new("local")
                 .conflicts_with_all(&["auto", "clear", "commits", ])
                 .long("local")
-                .help("Set commits of a release from local git.{n}\
+                .about("Set commits of a release from local git.{n}\
                         This requires that the command is run from within a git repository.  \
                         sentry-cli will then automatically find remotely configured \
                         repositories and discover commits."))
-            .arg(Arg::with_name("initial-depth")
+            .arg(Arg::new("initial-depth")
                 .conflicts_with("auto")
                 .long("initial-depth")
                 .value_name("INITIAL DEPTH")
                 .validator(validate_int)
-                .help("Set the number of commits of the initial release. The default is 20."))
-            .arg(Arg::with_name("commits")
+                .about("Set the number of commits of the initial release. The default is 20."))
+            .arg(Arg::new("commits")
                  .long("commit")
-                 .short("c")
+                 .short('c')
                  .value_name("SPEC")
                  .multiple(true)
                  .number_of_values(1)
-                 .help("Defines a single commit for a repo as \
+                 .about("Defines a single commit for a repo as \
                         identified by the repo name in the remote Sentry config. \
                         If no commit has been specified sentry-cli will attempt \
                         to auto discover that repository in the local git repo \
@@ -148,32 +148,32 @@ pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
         .subcommand(App::new("finalize")
             .about("Mark a release as finalized and released.")
             .version_arg(1)
-            .arg(Arg::with_name("started")
+            .arg(Arg::new("started")
                  .long("started")
                  .validator(validate_timestamp)
                  .value_name("TIMESTAMP")
-                 .help("Set the release start date."))
-            .arg(Arg::with_name("released")
+                 .about("Set the release start date."))
+            .arg(Arg::new("released")
                  .long("released")
                  .validator(validate_timestamp)
                  .value_name("TIMESTAMP")
-                 .help("Set the release time. [defaults to the current time]")))
+                 .about("Set the release time. [defaults to the current time]")))
         .subcommand(App::new("list")
             .about("List the most recent releases.")
-            .arg(Arg::with_name("no_abbrev")
+            .arg(Arg::new("no_abbrev")
                 .long("no-abbrev")
                 .hidden(true))
-            .arg(Arg::with_name("show_projects")
-                .short("P")
+            .arg(Arg::new("show_projects")
+                .short('P')
                 .long("show-projects")
-                .help("Display the Projects column")))
+                .about("Display the Projects column")))
         .subcommand(App::new("info")
             .about("Print information about a release.")
             .version_arg(1)
-            .arg(Arg::with_name("quiet")
-                .short("q")
+            .arg(Arg::new("quiet")
+                .short('q')
                 .long("quiet")
-                .help("Do not print any output.{n}If this is passed the command can be \
+                .about("Do not print any output.{n}If this is passed the command can be \
                        used to determine if a release already exists.  The exit status \
                        will be 0 if the release exists or 1 otherwise.")))
         .subcommand(App::new("files")
@@ -183,109 +183,109 @@ pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
             .subcommand(App::new("list").about("List all release files."))
             .subcommand(App::new("delete")
                 .about("Delete a release file.")
-                .arg(Arg::with_name("all")
-                    .short("A")
+                .arg(Arg::new("all")
+                    .short('A')
                     .long("all")
-                    .help("Delete all files."))
-                .arg(Arg::with_name("names")
+                    .about("Delete all files."))
+                .arg(Arg::new("names")
                     .value_name("NAMES")
                     .index(1)
                     .multiple(true)
-                    .help("Filenames to delete.")))
+                    .about("Filenames to delete.")))
             .subcommand(App::new("upload")
                 .about("Upload files for a release.")
-                .arg(Arg::with_name("dist")
+                .arg(Arg::new("dist")
                     .long("dist")
-                    .short("d")
+                    .short('d')
                     .value_name("DISTRIBUTION")
-                    .help("Optional distribution identifier for this file."))
-                .arg(Arg::with_name("wait")
+                    .about("Optional distribution identifier for this file."))
+                .arg(Arg::new("wait")
                     .long("wait")
-                    .help("Wait for the server to fully process uploaded files."))
-                .arg(Arg::with_name("headers")
+                    .about("Wait for the server to fully process uploaded files."))
+                .arg(Arg::new("headers")
                     .long("header")
-                    .short("H")
+                    .short('H')
                     .value_name("KEY VALUE")
                     .multiple(true)
                     .number_of_values(1)
-                    .help("Store a header with this file."))
-                .arg(Arg::with_name("path")
+                    .about("Store a header with this file."))
+                .arg(Arg::new("path")
                     .value_name("PATH")
                     .index(1)
                     .required(true)
-                    .help("The path to the file or directory to upload."))
-                .arg(Arg::with_name("name")
+                    .about("The path to the file or directory to upload."))
+                .arg(Arg::new("name")
                     .index(2)
                     .value_name("NAME")
-                    .help("The name of the file on the server."))
-                .arg(Arg::with_name("url_prefix")
-                    .short("u")
+                    .about("The name of the file on the server."))
+                .arg(Arg::new("url_prefix")
+                    .short('u')
                     .long("url-prefix")
                     .value_name("PREFIX")
-                    .help("The URL prefix to prepend to all filenames."))
-                .arg(Arg::with_name("url_suffix")
+                    .about("The URL prefix to prepend to all filenames."))
+                .arg(Arg::new("url_suffix")
                     .long("url-suffix")
                     .value_name("SUFFIX")
-                    .help("The URL suffix to append to all filenames."))
-                .arg(Arg::with_name("ignore")
+                    .about("The URL suffix to append to all filenames."))
+                .arg(Arg::new("ignore")
                     .long("ignore")
-                    .short("i")
+                    .short('i')
                     .value_name("IGNORE")
                     .multiple(true)
-                    .help("Ignores all files and folders matching the given glob"))
-                .arg(Arg::with_name("ignore_file")
+                    .about("Ignores all files and folders matching the given glob"))
+                .arg(Arg::new("ignore_file")
                     .long("ignore-file")
-                    .short("I")
+                    .short('I')
                     .value_name("IGNORE_FILE")
-                    .help("Ignore all files and folders specified in the given \
+                    .about("Ignore all files and folders specified in the given \
                            ignore file, e.g. .gitignore."))
-                .arg(Arg::with_name("extensions")
+                .arg(Arg::new("extensions")
                     .long("ext")
-                    .short("x")
+                    .short('x')
                     .value_name("EXT")
                     .multiple(true)
                     .number_of_values(1)
-                    .help("Set the file extensions that are considered for upload. \
+                    .about("Set the file extensions that are considered for upload. \
                            This overrides the default extensions. To add an extension, all default \
                            extensions must be repeated. Specify once per extension.")))
             .subcommand(App::new("upload-sourcemaps")
                 .about("Upload sourcemaps for a release.")
-                .arg(Arg::with_name("paths")
+                .arg(Arg::new("paths")
                     .value_name("PATHS")
                     .index(1)
-                    .required_unless_one(&["bundle", "bundle_sourcemap"])
+                    .required_unless_present_any(&["bundle", "bundle_sourcemap"])
                     .multiple(true)
-                    .help("The files to upload."))
-                .arg(Arg::with_name("url_prefix")
-                    .short("u")
+                    .about("The files to upload."))
+                .arg(Arg::new("url_prefix")
+                    .short('u')
                     .long("url-prefix")
                     .value_name("PREFIX")
-                    .help("The URL prefix to prepend to all filenames."))
-                .arg(Arg::with_name("url_suffix")
+                    .about("The URL prefix to prepend to all filenames."))
+                .arg(Arg::new("url_suffix")
                     .long("url-suffix")
                     .value_name("SUFFIX")
-                    .help("The URL suffix to append to all filenames."))
-                .arg(Arg::with_name("dist")
+                    .about("The URL suffix to append to all filenames."))
+                .arg(Arg::new("dist")
                     .long("dist")
-                    .short("d")
+                    .short('d')
                     .value_name("DISTRIBUTION")
-                    .help("Optional distribution identifier for the sourcemaps."))
-                .arg(Arg::with_name("validate")
+                    .about("Optional distribution identifier for the sourcemaps."))
+                .arg(Arg::new("validate")
                     .long("validate")
-                    .help("Enable basic sourcemap validation."))
-                .arg(Arg::with_name("wait")
+                    .about("Enable basic sourcemap validation."))
+                .arg(Arg::new("wait")
                     .long("wait")
-                    .help("Wait for the server to fully process uploaded files."))
-                .arg(Arg::with_name("no_sourcemap_reference")
+                    .about("Wait for the server to fully process uploaded files."))
+                .arg(Arg::new("no_sourcemap_reference")
                     .long("no-sourcemap-reference")
-                    .help("Disable emitting of automatic sourcemap references.{n}\
+                    .about("Disable emitting of automatic sourcemap references.{n}\
                            By default the tool will store a 'Sourcemap' header with \
                            minified files so that sourcemaps are located automatically \
                            if the tool can detect a link. If this causes issues it can \
                            be disabled."))
-                .arg(Arg::with_name("no_rewrite")
+                .arg(Arg::new("no_rewrite")
                     .long("no-rewrite")
-                    .help("Disables rewriting of matching sourcemaps. By default the tool \
+                    .about("Disables rewriting of matching sourcemaps. By default the tool \
                         will rewrite sources, so that indexed maps are flattened and missing \
                         sources are inlined if possible.{n}This fundamentally \
                         changes the upload process to be based on sourcemaps \
@@ -293,65 +293,65 @@ pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
                         setups like react-native that generate sourcemaps that \
                         would otherwise not work for sentry.")
                     .conflicts_with("rewrite"))
-                .arg(Arg::with_name("strip_prefix")
+                .arg(Arg::new("strip_prefix")
                     .long("strip-prefix")
                     .value_name("PREFIX")
                     .multiple(true)
                     .number_of_values(1)
-                    .help("Strips the given prefix from all sources references inside the upload \
+                    .about("Strips the given prefix from all sources references inside the upload \
                            sourcemaps (paths used within the sourcemap content, to map minified code \
                            to it's original source). Only sources that start with the given prefix \
                            will be stripped.{n}This will not modify the uploaded sources paths. \
                            To do that, point the upload or upload-sourcemaps command \
                            to a more precise directory instead.")
                     .conflicts_with("no_rewrite"))
-                .arg(Arg::with_name("strip_common_prefix")
+                .arg(Arg::new("strip_common_prefix")
                     .long("strip-common-prefix")
-                    .help("Similar to --strip-prefix but strips the most common \
+                    .about("Similar to --strip-prefix but strips the most common \
                            prefix on all sources references.")
                     .conflicts_with("no_rewrite"))
-                .arg(Arg::with_name("ignore")
+                .arg(Arg::new("ignore")
                     .long("ignore")
-                    .short("i")
+                    .short('i')
                     .value_name("IGNORE")
                     .multiple(true)
-                    .help("Ignores all files and folders matching the given glob"))
-                .arg(Arg::with_name("ignore_file")
+                    .about("Ignores all files and folders matching the given glob"))
+                .arg(Arg::new("ignore_file")
                     .long("ignore-file")
-                    .short("I")
+                    .short('I')
                     .value_name("IGNORE_FILE")
-                    .help("Ignore all files and folders specified in the given \
+                    .about("Ignore all files and folders specified in the given \
                            ignore file, e.g. .gitignore."))
-                .arg(Arg::with_name("bundle")
+                .arg(Arg::new("bundle")
                     .long("bundle")
                     .value_name("BUNDLE")
                     .conflicts_with("paths")
                     .requires_all(&["bundle_sourcemap"])
-                    .help("Path to the application bundle (indexed, file, or regular)"))
-                .arg(Arg::with_name("bundle_sourcemap")
+                    .about("Path to the application bundle (indexed, file, or regular)"))
+                .arg(Arg::new("bundle_sourcemap")
                     .long("bundle-sourcemap")
                     .value_name("BUNDLE_SOURCEMAP")
                     .conflicts_with("paths")
                     .requires_all(&["bundle"])
-                    .help("Path to the bundle sourcemap"))
+                    .about("Path to the bundle sourcemap"))
                 // legacy parameter
-                .arg(Arg::with_name("verbose")
+                .arg(Arg::new("verbose")
                     .long("verbose")
-                    .short("v")
+                    .short('v')
                     .hidden(true))
-                .arg(Arg::with_name("extensions")
+                .arg(Arg::new("extensions")
                     .long("ext")
-                    .short("x")
+                    .short('x')
                     .value_name("EXT")
                     .multiple(true)
                     .number_of_values(1)
-                    .help("Set the file extensions that are considered for upload. \
+                    .about("Set the file extensions that are considered for upload. \
                            This overrides the default extensions. To add an extension, all default \
                            extensions must be repeated. Specify once per extension.{n}\
                            Defaults to: `--ext=js --ext=map --ext=jsbundle --ext=bundle`"))
-                .arg(Arg::with_name("rewrite")
+                .arg(Arg::new("rewrite")
                     .long("rewrite")
-                    .help("Enables rewriting of matching sourcemaps \
+                    .about("Enables rewriting of matching sourcemaps \
                         so that indexed maps are flattened and missing \
                         sources are inlined if possible.{n}This fundamentally \
                         changes the upload process to be based on sourcemaps \
@@ -366,39 +366,39 @@ pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
             .version_arg(1)
             .subcommand(App::new("new")
                 .about("Creates a new release deployment.")
-                .arg(Arg::with_name("env")
+                .arg(Arg::new("env")
                      .long("env")
-                     .short("e")
+                     .short('e')
                      .value_name("ENV")
                      .required(true)
-                     .help("Set the environment for this release.{n}This argument is required.  \
+                     .about("Set the environment for this release.{n}This argument is required.  \
                             Values that make sense here would be 'production' or 'staging'."))
-                .arg(Arg::with_name("name")
+                .arg(Arg::new("name")
                      .long("name")
-                     .short("n")
+                     .short('n')
                      .value_name("NAME")
-                     .help("Optional human readable name for this deployment."))
-                .arg(Arg::with_name("url")
+                     .about("Optional human readable name for this deployment."))
+                .arg(Arg::new("url")
                      .long("url")
-                     .short("u")
+                     .short('u')
                      .value_name("URL")
-                     .help("Optional URL that points to the deployment."))
-                .arg(Arg::with_name("started")
+                     .about("Optional URL that points to the deployment."))
+                .arg(Arg::new("started")
                      .long("started")
                      .value_name("TIMESTAMP")
                      .validator(validate_timestamp)
-                     .help("Optional unix timestamp when the deployment started."))
-                .arg(Arg::with_name("finished")
+                     .about("Optional unix timestamp when the deployment started."))
+                .arg(Arg::new("finished")
                      .long("finished")
                      .value_name("TIMESTAMP")
                      .validator(validate_timestamp)
-                     .help("Optional unix timestamp when the deployment finished."))
-                .arg(Arg::with_name("time")
+                     .about("Optional unix timestamp when the deployment finished."))
+                .arg(Arg::new("time")
                      .long("time")
-                     .short("t")
+                     .short('t')
                      .value_name("SECONDS")
                      .validator(validate_int)
-                     .help("Optional deployment duration in seconds.{n}\
+                     .about("Optional deployment duration in seconds.{n}\
                             This can be specified alternatively to `--started` and `--finished`.")))
             .subcommand(App::new("list")
                 .about("List all deployments of a release.")))
@@ -425,7 +425,7 @@ fn path_as_url(path: &Path) -> String {
     path.display().to_string()
 }
 
-fn execute_new<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Result<(), Error> {
+fn execute_new(ctx: &ReleaseContext, matches: &ArgMatches) -> Result<(), Error> {
     let info_rv = ctx.api.new_release(
         ctx.get_org()?,
         &NewRelease {
@@ -444,7 +444,7 @@ fn execute_new<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Result
     Ok(())
 }
 
-fn execute_finalize<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Result<(), Error> {
+fn execute_finalize(ctx: &ReleaseContext, matches: &ArgMatches) -> Result<(), Error> {
     fn get_date(value: Option<&str>, now_default: bool) -> Result<Option<DateTime<Utc>>, Error> {
         match value {
             None => Ok(if now_default { Some(Utc::now()) } else { None }),
@@ -472,10 +472,7 @@ fn execute_propose_version() -> Result<(), Error> {
     Ok(())
 }
 
-fn execute_set_commits<'a>(
-    ctx: &ReleaseContext<'_>,
-    matches: &ArgMatches<'a>,
-) -> Result<(), Error> {
+fn execute_set_commits(ctx: &ReleaseContext, matches: &ArgMatches) -> Result<(), Error> {
     let version = matches.value_of("version").unwrap();
 
     let org = ctx.get_org()?;
@@ -600,7 +597,7 @@ fn execute_set_commits<'a>(
     Ok(())
 }
 
-fn execute_delete<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Result<(), Error> {
+fn execute_delete(ctx: &ReleaseContext, matches: &ArgMatches) -> Result<(), Error> {
     let version = matches.value_of("version").unwrap();
     let project = ctx.get_project_default().ok();
     if ctx
@@ -617,7 +614,7 @@ fn execute_delete<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Res
     Ok(())
 }
 
-fn execute_archive<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Result<(), Error> {
+fn execute_archive(ctx: &ReleaseContext, matches: &ArgMatches) -> Result<(), Error> {
     let version = matches.value_of("version").unwrap();
     let info_rv = ctx.api.update_release(
         ctx.get_org()?,
@@ -633,7 +630,7 @@ fn execute_archive<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Re
     Ok(())
 }
 
-fn execute_restore<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Result<(), Error> {
+fn execute_restore(ctx: &ReleaseContext, matches: &ArgMatches) -> Result<(), Error> {
     let version = matches.value_of("version").unwrap();
     let info_rv = ctx.api.update_release(
         ctx.get_org()?,
@@ -649,7 +646,7 @@ fn execute_restore<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Re
     Ok(())
 }
 
-fn execute_list<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Result<(), Error> {
+fn execute_list(ctx: &ReleaseContext, matches: &ArgMatches) -> Result<(), Error> {
     let project = ctx.get_project_default().ok();
     let releases = ctx.api.list_releases(ctx.get_org()?, project.as_deref())?;
     let mut table = Table::new();
@@ -696,7 +693,7 @@ fn execute_list<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Resul
     Ok(())
 }
 
-fn execute_info<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Result<(), Error> {
+fn execute_info(ctx: &ReleaseContext, matches: &ArgMatches) -> Result<(), Error> {
     let version = matches.value_of("version").unwrap();
     let org = ctx.get_org()?;
     let project = ctx.get_project_default().ok();
@@ -725,9 +722,9 @@ fn execute_info<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Resul
     Ok(())
 }
 
-fn execute_files_list<'a>(
-    ctx: &ReleaseContext<'_>,
-    _matches: &ArgMatches<'a>,
+fn execute_files_list(
+    ctx: &ReleaseContext,
+    _matches: &ArgMatches,
     release: &str,
 ) -> Result<(), Error> {
     let mut table = Table::new();
@@ -764,9 +761,9 @@ fn execute_files_list<'a>(
     Ok(())
 }
 
-fn execute_files_delete<'a>(
-    ctx: &ReleaseContext<'_>,
-    matches: &ArgMatches<'a>,
+fn execute_files_delete(
+    ctx: &ReleaseContext,
+    matches: &ArgMatches,
     release: &str,
 ) -> Result<(), Error> {
     let files: HashSet<String> = match matches.values_of("names") {
@@ -792,9 +789,9 @@ fn execute_files_delete<'a>(
     Ok(())
 }
 
-fn execute_files_upload<'a>(
-    ctx: &ReleaseContext<'_>,
-    matches: &ArgMatches<'a>,
+fn execute_files_upload(
+    ctx: &ReleaseContext,
+    matches: &ArgMatches,
     version: &str,
 ) -> Result<(), Error> {
     let dist = matches.value_of("dist");
@@ -892,7 +889,7 @@ fn execute_files_upload<'a>(
     }
 }
 
-fn get_url_prefix_from_args<'a, 'b>(matches: &'b ArgMatches<'a>) -> &'b str {
+fn get_url_prefix_from_args(matches: &ArgMatches) -> &str {
     let mut rv = matches.value_of("url_prefix").unwrap_or("~");
     // remove a single slash from the end.  so ~/ becomes ~ and app:/// becomes app://
     if rv.ends_with('/') {
@@ -901,11 +898,11 @@ fn get_url_prefix_from_args<'a, 'b>(matches: &'b ArgMatches<'a>) -> &'b str {
     rv
 }
 
-fn get_url_suffix_from_args<'a, 'b>(matches: &'b ArgMatches<'a>) -> &'b str {
+fn get_url_suffix_from_args(matches: &ArgMatches) -> &str {
     matches.value_of("url_suffix").unwrap_or("")
 }
 
-fn get_prefixes_from_args<'a, 'b>(matches: &'b ArgMatches<'a>) -> Vec<&'b str> {
+fn get_prefixes_from_args(matches: &ArgMatches) -> Vec<&str> {
     let mut prefixes: Vec<&str> = match matches.values_of("strip_prefix") {
         Some(paths) => paths.collect(),
         None => vec![],
@@ -916,8 +913,8 @@ fn get_prefixes_from_args<'a, 'b>(matches: &'b ArgMatches<'a>) -> Vec<&'b str> {
     prefixes
 }
 
-fn process_sources_from_bundle<'a>(
-    matches: &ArgMatches<'a>,
+fn process_sources_from_bundle(
+    matches: &ArgMatches,
     processor: &mut SourceMapProcessor,
 ) -> Result<(), Error> {
     let url_prefix = get_url_prefix_from_args(matches);
@@ -975,8 +972,8 @@ fn process_sources_from_bundle<'a>(
     Ok(())
 }
 
-fn process_sources_from_paths<'a>(
-    matches: &ArgMatches<'a>,
+fn process_sources_from_paths(
+    matches: &ArgMatches,
     processor: &mut SourceMapProcessor,
 ) -> Result<(), Error> {
     let paths = matches.values_of("paths").unwrap();
@@ -1039,9 +1036,9 @@ fn process_sources_from_paths<'a>(
     Ok(())
 }
 
-fn execute_files_upload_sourcemaps<'a>(
-    ctx: &ReleaseContext<'_>,
-    matches: &ArgMatches<'a>,
+fn execute_files_upload_sourcemaps(
+    ctx: &ReleaseContext,
+    matches: &ArgMatches,
     version: &str,
 ) -> Result<(), Error> {
     let mut processor = SourceMapProcessor::new();
@@ -1076,7 +1073,7 @@ fn execute_files_upload_sourcemaps<'a>(
     Ok(())
 }
 
-fn execute_files<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Result<(), Error> {
+fn execute_files(ctx: &ReleaseContext, matches: &ArgMatches) -> Result<(), Error> {
     let release = matches.value_of("version").unwrap();
     if let Some(sub_matches) = matches.subcommand_matches("list") {
         return execute_files_list(ctx, sub_matches, release);
@@ -1093,9 +1090,9 @@ fn execute_files<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Resu
     unreachable!();
 }
 
-fn execute_deploys_new<'a>(
-    ctx: &ReleaseContext<'_>,
-    matches: &ArgMatches<'a>,
+fn execute_deploys_new(
+    ctx: &ReleaseContext,
+    matches: &ArgMatches,
     version: &str,
 ) -> Result<(), Error> {
     let mut deploy = Deploy {
@@ -1128,9 +1125,9 @@ fn execute_deploys_new<'a>(
     Ok(())
 }
 
-fn execute_deploys_list<'a>(
-    ctx: &ReleaseContext<'_>,
-    _matches: &ArgMatches<'a>,
+fn execute_deploys_list(
+    ctx: &ReleaseContext,
+    _matches: &ArgMatches,
     version: &str,
 ) -> Result<(), Error> {
     let mut table = Table::new();
@@ -1159,7 +1156,7 @@ fn execute_deploys_list<'a>(
     Ok(())
 }
 
-fn execute_deploys<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Result<(), Error> {
+fn execute_deploys(ctx: &ReleaseContext, matches: &ArgMatches) -> Result<(), Error> {
     let release = matches.value_of("version").unwrap();
     if let Some(sub_matches) = matches.subcommand_matches("new") {
         return execute_deploys_new(ctx, sub_matches, release);
@@ -1170,7 +1167,7 @@ fn execute_deploys<'a>(ctx: &ReleaseContext<'_>, matches: &ArgMatches<'a>) -> Re
     unreachable!();
 }
 
-pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
+pub fn execute(matches: &ArgMatches) -> Result<(), Error> {
     // this one does not need a context or org
     if let Some(_sub_matches) = matches.subcommand_matches("propose-version") {
         return execute_propose_version();

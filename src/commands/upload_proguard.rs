@@ -26,67 +26,67 @@ struct MappingRef {
     pub uuid: Uuid,
 }
 
-pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
+pub fn make_app(app: App) -> App {
     app.about("Upload ProGuard mapping files to a project.")
         .org_project_args()
         .arg(
-            Arg::with_name("paths")
+            Arg::new("paths")
                 .value_name("PATH")
-                .help("The path to the mapping files.")
+                .about("The path to the mapping files.")
                 .multiple(true)
                 .number_of_values(1)
                 .index(1),
         )
         .arg(
-            Arg::with_name("version")
+            Arg::new("version")
                 .long("version")
                 .value_name("VERSION")
                 .requires("app_id")
-                .help(
+                .about(
                     "Optionally associate the mapping files with a human \
                      readable version.{n}This helps you understand which \
                      ProGuard files go with which version of your app.",
                 ),
         )
         .arg(
-            Arg::with_name("version_code")
+            Arg::new("version_code")
                 .long("version-code")
                 .value_name("VERSION_CODE")
                 .requires("app_id")
                 .requires("version")
-                .help(
+                .about(
                     "Optionally associate the mapping files with a version \
                      code.{n}This helps you understand which ProGuard files \
                      go with which version of your app.",
                 ),
         )
         .arg(
-            Arg::with_name("app_id")
+            Arg::new("app_id")
                 .long("app-id")
                 .value_name("APP_ID")
                 .requires("version")
-                .help(
+                .about(
                     "Optionally associate the mapping files with an application \
                      ID.{n}If you have multiple apps in one sentry project you can \
                      then easlier tell them apart.",
                 ),
         )
         .arg(
-            Arg::with_name("platform")
+            Arg::new("platform")
                 .long("platform")
                 .value_name("PLATFORM")
                 .requires("app_id")
-                .help(
+                .about(
                     "Optionally defines the platform for the app association. \
                      [defaults to 'android']",
                 ),
         )
         .arg(
-            Arg::with_name("no_reprocessing")
+            Arg::new("no_reprocessing")
                 .long("no-reprocessing")
-                .help("Do not trigger reprocessing after upload."),
+                .about("Do not trigger reprocessing after upload."),
         )
-        .arg(Arg::with_name("no_upload").long("no-upload").help(
+        .arg(Arg::new("no_upload").long("no-upload").about(
             "Disable the actual upload.{n}This runs all steps for the \
              processing but does not trigger the upload (this also \
              automatically disables reprocessing.  This is useful if you \
@@ -94,33 +94,33 @@ pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
              proguard UUIDs into a properties file.",
         ))
         .arg(
-            Arg::with_name("android_manifest")
+            Arg::new("android_manifest")
                 .long("android-manifest")
                 .value_name("PATH")
                 .conflicts_with("app_id")
-                .help("Read version and version code from an Android manifest file."),
+                .about("Read version and version code from an Android manifest file."),
         )
         .arg(
-            Arg::with_name("write_properties")
+            Arg::new("write_properties")
                 .long("write-properties")
                 .value_name("PATH")
-                .help(
+                .about(
                     "Write the UUIDs for the processed mapping files into \
                      the given properties file.",
                 ),
         )
         .arg(
-            Arg::with_name("require_one")
+            Arg::new("require_one")
                 .long("require-one")
-                .help("Requires at least one file to upload or the command will error."),
+                .about("Requires at least one file to upload or the command will error."),
         )
         .arg(
-            Arg::with_name("uuid")
+            Arg::new("uuid")
                 .long("uuid")
-                .short("u")
+                .short('u')
                 .value_name("UUID")
                 .validator(validate_uuid)
-                .help(
+                .about(
                     "Explicitly override the UUID of the mapping file with another one.{n}\
                      This should be used with caution as it means that you can upload \
                      multiple mapping files if you don't take care.  This however can \
@@ -131,7 +131,7 @@ pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
         )
 }
 
-pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
+pub fn execute(matches: &ArgMatches) -> Result<(), Error> {
     let api = Api::current();
 
     let paths: Vec<_> = match matches.values_of("paths") {
