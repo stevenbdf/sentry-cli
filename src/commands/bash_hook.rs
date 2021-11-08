@@ -36,6 +36,11 @@ pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
                 .help("Do not send environment variables along"),
         )
         .arg(
+            Arg::with_name("tags")
+                .long("tags")
+                .help("Set tags to run along with the send event command"),
+        )
+        .arg(
             Arg::with_name("cli")
                 .long("cli")
                 .value_name("CMD")
@@ -210,6 +215,12 @@ pub fn execute(matches: &ArgMatches<'_>) -> Result<(), Error> {
         script = script.replace("___SENTRY_NO_ENVIRON___", "--no-environ");
     } else {
         script = script.replace("___SENTRY_NO_ENVIRON___", "");
+    }
+
+    if matches.is_present("tags") {
+        script = script.replace("___SENTRY_TAGS___", "-t url:test");
+    } else {
+        script = script.replace("___SENTRY_TAGS___", "");
     }
 
     if !matches.is_present("no_exit") {
